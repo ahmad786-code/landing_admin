@@ -45,3 +45,38 @@
   justify-content: center;
 
  }
+
+ .add-users {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+ }
+
+
+ .story_editor {
+  width: 80%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.story_editor h1 {
+  text-align: center;
+}
+
+.story_editor label {
+  display: block;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.markdown_content {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}

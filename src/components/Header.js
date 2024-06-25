@@ -1,9 +1,9 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import './header.css'
- 
 
-const Header = ({onLogout}) => {
+
+const Header = ({ onLogout, admin, user }) => {
     return (
         <nav>
             <ul>
@@ -11,15 +11,19 @@ const Header = ({onLogout}) => {
                     <Link to="/emails">Emails</Link>
                 </li>
                 <li>
-                    <Link to="/top">Top Stories</Link>
-                </li>
-                <li>
-                    <Link to="/featured">Featured Stories</Link>
-                </li>
-                <li>
-                   <button onClick={onLogout}>Logout</button>
+                    <Link to="/stories">Add Stories</Link>
                 </li>
                  
+                {user && user.uid === admin && (
+                    <li>
+                        <Link to="/add-users">Add Users</Link>
+                    </li>
+                )}
+
+                <li>
+                    <button onClick={onLogout}>Logout</button>
+                </li>
+
 
             </ul>
         </nav>

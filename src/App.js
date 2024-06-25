@@ -12,14 +12,18 @@ import Auth from './screens/Auth';
 import Emails from './screens/Emails';
 import Header from './components/Header';
 import CreateTopStories from './screens/CreateTopStories';
- 
+
 import CreateFeaturedStories from './screens/CreateFeaturedStories';
+import AddUsers from './screens/AddUsers';
+import StoryEditor from './screens/StoryEditor';
 
 
 
 function App() {
   const [user, setUser] = useState(null);
+  
   const [loading, setLoading] = useState(true);
+  const ADMIN_USER_ID = 'UhcvKoAb8lP5V9da9qMBy9PNxR03';
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -42,14 +46,22 @@ function App() {
   return (
     <>
       <Router>
-        {user && <Header onLogout={handleLogout}/>}
+        {user && <Header onLogout={handleLogout} user={user} admin={ADMIN_USER_ID}/>}
         <div>
           <Routes>
-          <Route path="/" element={<Auth setUser={setUser} />} />
-          {user && <Route path="/emails" element={<Emails />} />}
-          {user && <Route path="/top" element={<CreateTopStories />} />}
-          {user && <Route path="/featured" element={<CreateFeaturedStories />} />}
-          {!user && <Route path="*" element={<Navigate to="/" replace />} />}
+            <Route path="/" element={<Auth setUser={setUser} />} />
+            {user && <Route path="/emails" element={<Emails />} />}
+
+            {user && <Route path="/stories" element={<StoryEditor />} />}
+
+            {user && user.uid === ADMIN_USER_ID ? (
+              <Route path="/add-users" element={<AddUsers />} />
+            ) : (
+              <Route path="/add-users" element={<Navigate to="/" replace />} />
+            )}
+            {!user && <Route path="*" element={<Navigate to="/" replace />} />}
+
+
           </Routes>
 
         </div>
