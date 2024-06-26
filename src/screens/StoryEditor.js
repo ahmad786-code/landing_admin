@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { getStorage, ref, getDownloadURL, uploadString } from 'firebase/storage';
 import { storage } from '../firebase'; // Ensure your firebase configuration is correct
+import UploadMedia from '../components/UploadMedia';
 
 const mdParser = new MarkdownIt();
 
@@ -51,11 +52,18 @@ const StoryEditor = () => {
                 renderHTML={(text) => mdParser.render(text)}
                 onChange={handleEditorChange}
             />
-            <button onClick={handleSave}>Save</button>
+            <UploadMedia />
+            <div className='save_btn'>
+                <button onClick={handleSave}>Save</button>
+
+            </div>
+
+
             {savedMessage && <p>{savedMessage}</p>}
             <div className='markdown_content'>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
             </div>
+
         </div>
     );
 };

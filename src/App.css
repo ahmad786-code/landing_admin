@@ -80,3 +80,7 @@
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+
+.save_btn {
+  text-align: center;
+}
