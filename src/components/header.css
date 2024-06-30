@@ -34,3 +34,8 @@ nav a {
     padding: .2rem 1rem;
     cursor: pointer;
  }
+
+ .link {
+    text-decoration: none;
+    color: inherit;
+ }

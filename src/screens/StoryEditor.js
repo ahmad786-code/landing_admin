@@ -2,70 +2,77 @@ import React, { useState } from 'react';
 import MdEditor from 'react-markdown-editor-lite';
 import MarkdownIt from 'markdown-it';
 import 'react-markdown-editor-lite/lib/index.css';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { getStorage, ref, getDownloadURL, uploadString } from 'firebase/storage';
-import { storage } from '../firebase'; // Ensure your firebase configuration is correct
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../firebase'; // Ensure your firebase configuration is correct
 import UploadMedia from '../components/UploadMedia';
 
 const mdParser = new MarkdownIt();
 
 const StoryEditor = () => {
-    const [markdownContent, setMarkdownContent] = useState('');
-    const [savedMessage, setSavedMessage] = useState('');
-    const [isFeaturedStory, setIsFeaturedStory] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState('');
+  const [savedMessage, setSavedMessage] = useState('');
+  const [isFeaturedStory, setIsFeaturedStory] = useState(false);
 
-    const handleEditorChange = ({ text }) => {
-        setMarkdownContent(text);
-    };
+  const handleEditorChange = ({ text }) => {
+    setMarkdownContent(text);
+  };
 
-    const handleSave = async () => {
-        try {
-            const storageRef = ref(storage, isFeaturedStory ? 'markdown/featured_story.md' : 'markdown/top_story.md');
-            await uploadString(storageRef, markdownContent, 'raw');
-            setSavedMessage('Markdown content saved successfully!');
-        } catch (error) {
-            console.error('Error saving markdown:', error);
-            setSavedMessage('Failed to save markdown content.');
-        }
-    };
+  const handleSave = async () => {
+    try {
+      const collectionName = isFeaturedStory ? 'featured_stories' : 'top_stories';
 
-    const handleCheckboxChange = (e) => {
-        setIsFeaturedStory(e.target.checked);
-        setMarkdownContent(''); // Reset markdown content when switching
-    };
+      // Extract data from markdown content
+      const imgMatch = markdownContent.match(/!\[.*?\]\((.*?)\)/);
+      const titleMatch = markdownContent.match(/# (.*?)(\n|$)/);
+      const authorDateMatch = markdownContent.match(/\*\*(.*?)\*\* \| (.*?)(\n|$)/);
 
-    return (
-        <div className='story_editor'>
-            <h1>{isFeaturedStory ? 'Featured Stories' : 'Top Stories'}</h1>
-            <label>
-                <input
-                    type="checkbox"
-                    checked={isFeaturedStory}
-                    onChange={handleCheckboxChange}
-                />
-                Featured Story
-            </label>
-            <MdEditor
-                value={markdownContent}
-                style={{ height: '500px' }}
-                renderHTML={(text) => mdParser.render(text)}
-                onChange={handleEditorChange}
-            />
-            <UploadMedia />
-            <div className='save_btn'>
-                <button onClick={handleSave}>Save</button>
+      const newStory = {
+        imgSrc: imgMatch ? imgMatch[1] : '',
+        title: titleMatch ? titleMatch[1] : '',
+        author: authorDateMatch ? authorDateMatch[1] : '',
+        date: authorDateMatch ? authorDateMatch[2] : '',
+        content: markdownContent,
+        timestamp: Timestamp.now(),
+      };
 
-            </div>
+      await addDoc(collection(db, collectionName), newStory);
 
+      setSavedMessage('Markdown content saved successfully!');
+    } catch (error) {
+      console.error('Error saving markdown:', error);
+      setSavedMessage('Failed to save markdown content.');
+    }
+  };
 
-            {savedMessage && <p>{savedMessage}</p>}
-            <div className='markdown_content'>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
-            </div>
+  const handleCheckboxChange = (e) => {
+    setIsFeaturedStory(e.target.checked);
+    setMarkdownContent(''); // Reset markdown content when switching
+  };
 
-        </div>
-    );
+  return (
+    <div className='story_editor'>
+      <h1>{isFeaturedStory ? 'Featured Stories' : 'Top Stories'}</h1>
+      <label>
+        <input
+          type="checkbox"
+          checked={isFeaturedStory}
+          onChange={handleCheckboxChange}
+        />
+        Featured Story
+      </label>
+      <MdEditor
+        value={markdownContent}
+        style={{ height: '500px' }}
+        renderHTML={(text) => mdParser.render(text)}
+        onChange={handleEditorChange}
+      />
+      <UploadMedia />
+      <div className='save_btn'>
+        <button onClick={handleSave}>Save</button>
+      </div>
+      {savedMessage && <p>{savedMessage}</p>}
+    </div>
+  );
 };
 
 export default StoryEditor;
